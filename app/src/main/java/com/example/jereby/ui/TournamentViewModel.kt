@@ -2,19 +2,21 @@ package com.example.jereby.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.jereby.data.Club
-import com.example.jereby.data.ClubStats
-import com.example.jereby.data.Match
-import com.example.jereby.data.Player
-import com.example.jereby.data.PlayerStats
-import com.example.jereby.data.Round
-import com.example.jereby.data.Tournament
 import com.example.jereby.data.dao.ClubDao
 import com.example.jereby.data.dao.ClubStatsDao
 import com.example.jereby.data.dao.PlayerDao
 import com.example.jereby.data.dao.PlayerStatsDao
 import com.example.jereby.data.dao.TournamentDao
+import com.example.jereby.data.model.Club
+import com.example.jereby.data.model.ClubStats
+import com.example.jereby.data.model.Match
+import com.example.jereby.data.model.Player
+import com.example.jereby.data.model.PlayerStats
+import com.example.jereby.data.model.Round
+import com.example.jereby.data.model.Tournament
 import com.example.jereby.domain.TournamentRepository
+import com.example.jereby.domain.model.ClubSourceKind
+import com.example.jereby.ui.model.RoundWithMatches
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,6 +26,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -89,17 +92,36 @@ class TournamentViewModel @Inject constructor(
     val allTournaments: StateFlow<List<Tournament>> =
         tournamentDao.list().stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
+    val roundsWithMatches: StateFlow<List<RoundWithMatches>> =
+        rounds.flatMapLatest { rs ->
+            if (rs.isEmpty()) flowOf(emptyList())
+            else {
+                // combine matches flows for every round
+                val flows = rs.map { r -> repo.matches(r.id).map { ms -> r to ms } }
+                combine(flows) { array: Array<Pair<Round, List<Match>>> ->
+                    array.sortedBy { it.first.indexInTournament }
+                        .map { (r, ms) -> RoundWithMatches(r, ms.sortedBy { it.position }) }
+                }
+            }
+        }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+
     fun loadExisting(id: Long) {
         if (_tournamentId.value != id) _tournamentId.value = id
     }
 
-    fun create(title: String, players: List<String>, clubCount: Int) = viewModelScope.launch {
-        val id = repo.createTournament(title, players, clubCount)
+    fun create(title: String, players: List<String>, clubCount: Int, source: ClubSourceKind) =
+        viewModelScope.launch {
+            val id = repo.createTournament(title, players, clubCount, source)
         _tournamentId.value = id
     }
 
-    suspend fun createAndReturnId(title: String, players: List<String>, clubCount: Int): Long {
-        val id = repo.createTournament(title, players, clubCount)
+    suspend fun createAndReturnId(
+        title: String,
+        players: List<String>,
+        clubCount: Int,
+        source: ClubSourceKind,
+    ): Long {
+        val id = repo.createTournament(title, players, clubCount, source)
         _tournamentId.value = id
         return id
     }
@@ -107,4 +129,13 @@ class TournamentViewModel @Inject constructor(
     fun submitScore(matchId: Long, home: Int, away: Int) = viewModelScope.launch {
         repo.submitScore(matchId, home, away)
     }
+
+    fun editScore(matchId: Long, home: Int, away: Int) = viewModelScope.launch {
+        repo.editScore(matchId, home, away)
+    }
+
+    fun deleteTournament(tournamentId: Long) = viewModelScope.launch {
+        repo.deleteTournament(tournamentId)
+    }
+
 }

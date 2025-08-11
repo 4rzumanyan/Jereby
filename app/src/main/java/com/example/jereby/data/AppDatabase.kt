@@ -9,6 +9,13 @@ import com.example.jereby.data.dao.PlayerDao
 import com.example.jereby.data.dao.PlayerStatsDao
 import com.example.jereby.data.dao.RoundDao
 import com.example.jereby.data.dao.TournamentDao
+import com.example.jereby.data.model.Club
+import com.example.jereby.data.model.ClubStats
+import com.example.jereby.data.model.Match
+import com.example.jereby.data.model.Player
+import com.example.jereby.data.model.PlayerStats
+import com.example.jereby.data.model.Round
+import com.example.jereby.data.model.Tournament
 
 @Database(
     entities = [

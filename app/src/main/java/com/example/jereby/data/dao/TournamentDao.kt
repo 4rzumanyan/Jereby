@@ -5,7 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
-import com.example.jereby.data.Tournament
+import com.example.jereby.data.model.Tournament
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -13,8 +13,10 @@ interface TournamentDao {
 
     @Insert
     suspend fun insert(t: Tournament): Long
+
     @Update
     suspend fun update(t: Tournament)
+
     @Query("SELECT * FROM Tournament WHERE id=:id")
     fun observe(id: Long): Flow<Tournament>
 
@@ -26,4 +28,8 @@ interface TournamentDao {
 
     @Delete
     suspend fun delete(t: Tournament)
+
+    @Query("DELETE FROM Tournament WHERE id=:tid")
+    suspend fun deleteById(tid: Long)
+
 }

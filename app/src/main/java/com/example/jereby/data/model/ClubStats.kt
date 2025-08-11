@@ -1,11 +1,11 @@
-package com.example.jereby.data
+package com.example.jereby.data.model
 
 import androidx.room.Entity
 
-@Entity(primaryKeys = ["tournamentId", "playerId"])
-data class PlayerStats(
+@Entity(primaryKeys = ["tournamentId", "clubId"])
+data class ClubStats(
     val tournamentId: Long,
-    val playerId: Long,
+    val clubId: String,
     val wins: Int = 0,
     val losses: Int = 0,
     val goalsFor: Int = 0,

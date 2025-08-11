@@ -46,4 +46,5 @@ okhttp-logging             = { module = "com.squareup.okhttp3:logging-intercepto
 
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serialization" }
 coil-compose               = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
+coil-network-okhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coil" }
 jsoup                      = { module = "org.jsoup:jsoup", version.ref = "jsoup" }

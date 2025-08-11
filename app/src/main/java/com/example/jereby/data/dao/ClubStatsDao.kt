@@ -4,7 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.example.jereby.data.ClubStats
+import com.example.jereby.data.model.ClubStats
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -18,5 +18,8 @@ interface ClubStatsDao {
 
     @Query("SELECT * FROM ClubStats WHERE tournamentId=:tid AND clubId=:cid")
     suspend fun get(tid: Long, cid: String): ClubStats?
+
+    @Query("DELETE FROM ClubStats WHERE tournamentId=:tid")
+    suspend fun deleteByTournament(tid: Long)
 
 }

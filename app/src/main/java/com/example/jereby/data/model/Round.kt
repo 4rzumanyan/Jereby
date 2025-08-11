@@ -1,4 +1,4 @@
-package com.example.jereby.data
+package com.example.jereby.data.model
 
 import androidx.room.Entity
 import androidx.room.Index
